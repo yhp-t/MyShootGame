@@ -17,6 +17,7 @@ qt_add_executable(MyShootingGame
     Player.h
     Weapon.h
     Enemy.h
+    PowerUp.h
 
 )
 
