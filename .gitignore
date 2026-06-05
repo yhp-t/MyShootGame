@@ -1,0 +1,11 @@
+build/
+build*/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+*.user
+.qtcreator/
+*.app/
+.DS_Store
+__MACOSX/
+work/
