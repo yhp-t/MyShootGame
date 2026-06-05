@@ -18,6 +18,7 @@ qt_add_executable(MyShootingGame
     Weapon.h
     Enemy.h
     PowerUp.h
+    MenuWidget.h
 
 )
 

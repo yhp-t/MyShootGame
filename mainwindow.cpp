@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setFixedSize(m_screenWidth, m_screenHeight); // 固定竖版
+    setFixedSize(m_screenWidth, m_screenHeight);
     setFocusPolicy(Qt::StrongFocus);
 
     m_gameTimer = new QTimer(this);
@@ -18,14 +18,44 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_gameTimer, &QTimer::timeout, this, &MainWindow::gameLoop);
     connect(m_waveTimer, &QTimer::timeout, this, &MainWindow::spawnWave);
 
-    resetGame();
+    m_menuWidget = new MenuWidget(this);
+    m_menuWidget->setGeometry(0, 0, m_screenWidth, m_screenHeight);
+
+    connect(m_menuWidget, &MenuWidget::startClicked, this, &MainWindow::startNewGame);
+    connect(m_menuWidget, &MenuWidget::quitClicked, this, &MainWindow::close);
+
+    showMainMenu();
 }
+
+void MainWindow::showMainMenu()
+{
+    m_gameState = GameState::Menu;
+    m_isGameOver = false;
+
+    m_gameTimer->stop();
+    m_waveTimer->stop();
+
+    m_menuWidget->show();
+    m_menuWidget->raise();
+
+    update();
+}
+
+void MainWindow::startNewGame()
+{
+    m_menuWidget->hide();
+    m_gameState = GameState::Playing;
+    resetGame();
+    setFocus();
+}
+
 
 void MainWindow::resetGame() {
     m_score = 0;
     m_playerHp = 3;
     m_currentWave = 1;
     m_isGameOver = false;
+    m_gameState = GameState::Playing;
     m_moveLeft = false;
     m_moveRight = false;
     m_shootCooldown = 0.25;
@@ -62,7 +92,10 @@ void MainWindow::gameLoop() {
     qreal deltaTime = currentTime - m_lastFrameTime;
     m_lastFrameTime = currentTime;
 
-    if (m_isGameOver) { update(); return; }
+    if (m_gameState != GameState::Playing) {
+        update();
+        return;
+    }
 
     m_timeSinceLastShot += deltaTime;
 
@@ -140,7 +173,11 @@ void MainWindow::checkCollisions() {
         if (enemyIt->getHitbox().intersects(playerBox)) {
             enemyIt = m_enemies.erase(enemyIt);
             m_playerHp--; // 扣血 [cite: 7]
-            if (m_playerHp <= 0) { m_isGameOver = true; m_waveTimer->stop(); }
+            if (m_playerHp <= 0) {
+                m_isGameOver = true;
+                m_gameState = GameState::GameOver;
+                m_waveTimer->stop();
+            }
         } else { ++enemyIt; }
     }
 

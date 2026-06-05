@@ -9,7 +9,7 @@
 #include "Enemy.h"
 #include "Bullet.h"
 #include "PowerUp.h"
-
+#include "MenuWidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -48,10 +48,22 @@ private:
     QList<Bullet> m_bullets; // 用于接收来自 Player 发射的子弹
     QList<PowerUp> m_powerUps;
 
+    
     // A3 计分与状态变量
     int m_score;
     int m_playerHp;
     int m_currentWave; // 当前波次
+
+    enum class GameState {
+    Menu,
+    Playing,
+    Paused,
+    GameOver
+    };
+
+    GameState m_gameState;
+    MenuWidget *m_menuWidget;
+
     bool m_isGameOver;
     bool m_moveLeft;
     bool m_moveRight;
@@ -65,6 +77,8 @@ private:
     void resetGame();       // 游戏初始化与重置
     void checkCollisions(); // A3核心：轴对齐矩形碰撞检测
     void shootBullet();     // A2核心：单发子弹生成
+    void startNewGame();
+    void showMainMenu();
     void drawBackground(QPainter &painter);
     void drawPlayer(QPainter &painter);
     void drawHud(QPainter &painter);
